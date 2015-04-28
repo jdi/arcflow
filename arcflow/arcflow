@@ -60,7 +60,7 @@ cmd_start()
 
   # start the hotfix/bug/release
   git flow "$_FLOWTYPE" start "$_TASKID" >/dev/null 2>&1
-  git push --set-upstream origin feature/"$_TASKID" >/dev/null 2>&1
+  git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
 
   echo "Starting $_TYPE $_TASKID - $_TITLE"
   echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
