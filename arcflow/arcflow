@@ -109,6 +109,7 @@ cmd_start()
 cmd_review()
 {
   require_branch
+  git pull --rebase
   git rebase develop
   echo "Submitting $BRANCH for review."
   git push
@@ -119,7 +120,7 @@ cmd_review()
 cmd_finish()
 {
   require_branch
-  git fetch
+  git pull --rebase
   git rebase develop
   local _TYPE=`type_from_branch`
   local _TASK=`task_from_branch`
