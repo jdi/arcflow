@@ -112,9 +112,12 @@ cmd_review()
 cmd_finish()
 {
   require_branch
+  git fetch
+  git rebase develop
   local _TYPE=`type_from_branch`
   local _TASK=`task_from_branch`
   git flow "$_TYPE" finish "$_TASK"
+  git push
 }
 
 cmd_abandon()
