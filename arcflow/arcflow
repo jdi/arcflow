@@ -60,9 +60,17 @@ cmd_start()
 
   # start the hotfix/bug/release
   git flow "$_FLOWTYPE" start "$_TASKID" >/dev/null 2>&1
-  git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
+  _ERR=$(git branch --set-upstream-to origin/"$_FLOWTYPE"/"$_TASKID" 2>&1 >/dev/null)
+  _ERR=`echo "$_ERR" | sed '/^error: the requested upstream branch .* does not exist$/!d;'`
+  #if branch failed, git push, else git pull --rebase
+  if [ "$_ERR" != "" ] ; then
+    echo "Starting $_TYPE $_TASKID - $_TITLE"
+    git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
+  else
+    echo "Resuming $_TYPE $_TASKID - $_TITLE"
+    git pull --rebase >/dev/null 2>&1
+  fi
 
-  echo "Starting $_TYPE $_TASKID - $_TITLE"
   echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
 }
 
