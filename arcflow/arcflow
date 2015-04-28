@@ -20,7 +20,7 @@ usage()
 	echo "   start     Start work on a task."
 	echo "   review    Submit this branch for review."
 	echo "   finish    Merge into develop and delete the branch."
-	echo "   abandon   Abandon the this branch and delete it from the repo"
+	echo "   abandon   Abandon the this branch and delete it from the repo."
 }
 
 # arcflow start Txxx
