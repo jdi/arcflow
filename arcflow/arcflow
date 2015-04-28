@@ -5,7 +5,7 @@ BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 set -e
 
 warn() { echo "$@" >&2; }
-die() { warn "$@"; exit 1; }
+die() { warn "ERROR: $@"; exit 1; }
 
 type_from_branch()
 {
@@ -76,12 +76,15 @@ cmd_start()
   # start the hotfix/bug/release
   local _ERR=`git flow "$_FLOWTYPE" start "$_TASKID" 2>&1 >/dev/null`
   if [ "$_ERR" != "" ] ; then
-    local _NOERR=`echo "$_ERR" | sed '/^Branch .* already exists. Pick another name.$/!d;'`
+    local _NOERR=`echo "$_ERR" | sed '/^Branch .* already exists. Pick another name.$/!d'`
     if [ "$_NOERR" != "" ] ; then
       #branch already exists, see if its in our local branch list
       git checkout "$_FLOWTYPE/$_TASKID" >/dev/null 2>&1
     else
-      die "$_ERR"
+      local _NOERR=`echo "$_ERR" | sed '/^Switched to a new branch .*$/!d'`
+      if [ "$_NOERR" = "" ] ; then
+        die "$_ERR"
+      fi
     fi
   fi
 
@@ -106,6 +109,7 @@ cmd_start()
 cmd_review()
 {
   require_branch
+  git rebase develop
   echo "Submitting $BRANCH for review."
   git push
   arc diff develop
