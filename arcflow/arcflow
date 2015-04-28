@@ -35,7 +35,7 @@ cmd_start()
     die "No task specified\n$_TASKS";
   fi
 
-  local _TAS=`echo "$_TASKS" | sed -E '/^'"$_TASKID"' /!d; s/^'"$_TASKID"' (.*)   (.*)   [a-zA-Z]*$/\1~\2/'`
+  local _TAS=`arc tasks --owner @all | sed -E '/^'"$_TASKID"' /!d; s/^'"$_TASKID"' (.*)   (.*)   [a-zA-Z]*$/\1~\2/'`
   IFS='~' read _TITLE _TYPE <<< "$_TAS"
 
   if [ "$_TITLE" = "" ] ; then
