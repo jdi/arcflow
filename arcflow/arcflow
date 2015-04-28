@@ -2,6 +2,8 @@
 
 BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 
+set -e
+
 warn() { echo "$@" >&2; }
 die() { warn "$@"; exit 1; }
 
