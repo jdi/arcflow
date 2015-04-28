@@ -86,7 +86,6 @@ cmd_review()
 cmd_finish()
 {
   require_branch
-  arc amend
   arc land --onto develop
   delete_branch
 }
