@@ -107,6 +107,7 @@ cmd_review()
 {
   require_branch
   echo "Submitting $BRANCH for review."
+  git push
   arc diff develop
 }
 
