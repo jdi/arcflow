@@ -24,11 +24,12 @@ require_branch()
   fi
 }
 
-usage()
+cmd_help()
 {
 	echo "usage: arcflow <subcommand>"
 	echo
 	echo "Available subcommands are:"
+	echo "   help      This page."
 	echo "   start     Start work on a task."
 	echo "   review    Submit this branch for review."
 	echo "   finish    Merge the branch into develop."
@@ -135,9 +136,9 @@ delete_branch()
 
 SUBCOMMAND="$1"; shift
 if [ "" = "$SUBCOMMAND" ]; then
-  usage
+  cmd_help
 elif ! type "cmd_$SUBCOMMAND" >/dev/null 2>&1; then
-	die "Unknown subcommand: '$SUBCOMMAND'"
+	die "Unknown subcommand: '$SUBCOMMAND'\n`cmd_help`"
 else
   cmd_$SUBCOMMAND "$@"
 fi
