@@ -5,6 +5,18 @@ BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 warn() { echo "$@" >&2; }
 die() { warn "$@"; exit 1; }
 
+type_from_branch()
+{
+  IFS='/' read -a _DATA <<< "$BRANCH"
+  echo "${_DATA[0]}"
+}
+
+task_from_branch()
+{
+  IFS='/' read -a _DATA <<< "$BRANCH"
+  echo "${_DATA[1]}"
+}
+
 require_branch()
 {
   if [ "$BRANCH" = "" ] || [ "$BRANCH" = "master" ] || [ "$BRANCH" = "develop" ] ; then
@@ -86,7 +98,9 @@ cmd_review()
 cmd_finish()
 {
   require_branch
-  arc land --onto develop
+  local _TYPE=`type_from_branch`
+  local _TASK=`task_from_branch`
+  git flow "$_TYPE" finish "$_TASK"
 }
 
 cmd_abandon()
