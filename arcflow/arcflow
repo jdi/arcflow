@@ -71,13 +71,26 @@ cmd_start()
   fi
 
   # start the hotfix/bug/release
-  git flow "$_FLOWTYPE" start "$_TASKID" >/dev/null 2>&1
-  _ERR=$(git branch --set-upstream-to origin/"$_FLOWTYPE"/"$_TASKID" 2>&1 >/dev/null)
-  _ERR=`echo "$_ERR" | sed '/^error: the requested upstream branch .* does not exist$/!d;'`
+  local _ERR=`git flow "$_FLOWTYPE" start "$_TASKID" 2>&1 >/dev/null`
+  if [ "$_ERR" != "" ] ; then
+    local _NOERR=`echo "$_ERR" | sed '/^Branch .* already exists. Pick another name.$/!d;'`
+    if [ "$_NOERR" != "" ] ; then
+      #branch already exists, see if its in our local branch list
+      git checkout "$_FLOWTYPE/$_TASKID" >/dev/null 2>&1
+    else
+      die "$_ERR"
+    fi
+  fi
+
+  local _ERR=`git branch --set-upstream-to origin/"$_FLOWTYPE"/"$_TASKID" 2>&1 >/dev/null`
   #if branch failed, git push, else git pull --rebase
   if [ "$_ERR" != "" ] ; then
-    echo "Starting $_TYPE $_TASKID - $_TITLE"
-    git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
+    local _NOERR=`echo "$_ERR" | sed '/^error: the requested upstream branch .* does not exist$/!d'`
+    if [ "$_NOERR" != "" ] ; then
+      echo "Starting $_TYPE $_TASKID - $_TITLE"
+      git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
+    fi
+    die "$_ERR"
   else
     echo "Resuming $_TYPE $_TASKID - $_TITLE"
     git pull --rebase >/dev/null 2>&1
