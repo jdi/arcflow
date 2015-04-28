@@ -19,7 +19,7 @@ usage()
 	echo "Available subcommands are:"
 	echo "   start     Start work on a task."
 	echo "   review    Submit this branch for review."
-	echo "   finish    Merge into develop and delete the branch."
+	echo "   finish    Merge the branch into develop."
 	echo "   abandon   Abandon the this branch and delete it from the repo."
 }
 
@@ -87,7 +87,6 @@ cmd_finish()
 {
   require_branch
   arc land --onto develop
-  delete_branch
 }
 
 cmd_abandon()
