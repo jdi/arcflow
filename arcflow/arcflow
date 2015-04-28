@@ -1,0 +1,110 @@
+#!/bin/sh
+
+BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
+
+warn() { echo "$@" >&2; }
+die() { warn "$@"; exit 1; }
+
+require_branch()
+{
+  if [ "$BRANCH" = "" ] || [ "$BRANCH" = "master" ] || [ "$BRANCH" = "develop" ] ; then
+    die "Cannot submit $BRANCH for review, you are not on a feature branch."
+  fi
+}
+
+usage()
+{
+	echo "usage: arcflow <subcommand>"
+	echo
+	echo "Available subcommands are:"
+	echo "   start     Start work on a task."
+	echo "   review    Submit this branch for review."
+	echo "   finish    Merge into develop and delete the branch."
+	echo "   abandon   Abandon the this branch and delete it from the repo"
+}
+
+# arcflow start Txxx
+cmd_start()
+{
+  # must start from develop
+  git checkout develop >/dev/null 2>&1
+
+  local _TASKID="$1"; shift
+  local _TASKS=`arc tasks`
+  if [ "$_TASKID" = "" ] ; then
+    die "No task specified\n$_TASKS";
+  fi
+
+  local _TAS=`echo "$_TASKS" | sed -E '/^'"$_TASKID"' /!d; s/^'"$_TASKID"' (.*)   (.*)   [a-zA-Z]*$/\1~\2/'`
+  IFS='~' read _TITLE _TYPE <<< "$_TAS"
+
+  if [ "$_TITLE" = "" ] ; then
+    die "Task $_TASKID not found.\n$_TASKS";
+  fi
+
+  # TODO: not very flexible: Hotfix, Bug, Release Candidate, Feature
+  local _FLOWTYPE=''
+  if [ "$_TYPE" = "Hotfix" ]; then
+    _FLOWTYPE='hotfix'
+  elif [ "$_TYPE" = "Bug" ]; then
+    _FLOWTYPE='feature'
+  elif [ "$_TYPE" = "Feature" ]; then
+    _FLOWTYPE='feature'
+  elif [ "$_TYPE" = "Release Candidate" ]; then
+    _FLOWTYPE='release'
+  fi
+
+  if [ "$_FLOWTYPE" = '' ]; then
+    die "Task type '$_TYPE' not supported in arcflow"
+  fi
+
+  # start the hotfix/bug/release
+  git flow "$_FLOWTYPE" start "$_TASKID" >/dev/null 2>&1
+  git push --set-upstream origin feature/"$_TASKID" >/dev/null 2>&1
+
+  echo "Starting $_TYPE $_TASKID - $_TITLE"
+  echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
+}
+
+# arcflow review
+cmd_review()
+{
+  require_branch
+  echo "Submitting $BRANCH for review."
+  arc diff develop
+}
+
+# arcflow finish
+cmd_finish()
+{
+  require_branch
+  arc amend
+  arc land --onto develop
+  delete_branch
+}
+
+cmd_abandon()
+{
+  require_branch
+  read -p "Are you sure you wish to abandon $BRANCH [y/N]? " -r
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    delete_branch
+  fi
+}
+
+delete_branch()
+{
+  require_branch
+  git checkout develop
+  git branch -d "$BRANCH"
+  git push origin :"$BRANCH"
+}
+
+SUBCOMMAND="$1"; shift
+if [ "" = "$SUBCOMMAND" ]; then
+  usage
+elif ! type "cmd_$SUBCOMMAND" >/dev/null 2>&1; then
+	die "Unknown subcommand: '$SUBCOMMAND'"
+else
+  cmd_$SUBCOMMAND "$@"
+fi
