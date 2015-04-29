@@ -120,7 +120,7 @@ cmd_finish()
 
   local _FLAGS=''
   if [ "$_TYPE" = "Hotfix" ]; then
-    _FLAGS='-n '
+    _FLAGS='-n'
   elif [ "$_TYPE" = "Bug" ]; then
     _FLAGS=''
   elif [ "$_TYPE" = "Feature" ]; then
@@ -131,7 +131,7 @@ cmd_finish()
 
   git flow "$_TYPE" finish "$_FLAGS$_TASK"
   arc close-revision "$_DIFF"
-  git push
+  git push --all
 }
 
 cmd_abandon()
