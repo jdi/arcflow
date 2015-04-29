@@ -2,8 +2,6 @@
 
 BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 
-set -e
-
 warn() { echo "$@" >&2; }
 die() { warn "ERROR: $@"; exit 1; }
 
@@ -145,12 +143,11 @@ delete_branch()
   git push origin :"$BRANCH"
 }
 
-SUBCOMMAND="$1"
+SUBCOMMAND="$1"; shift
 if [ "" = "$SUBCOMMAND" ]; then
   cmd_help
 elif ! type "cmd_$SUBCOMMAND" >/dev/null 2>&1; then
 	die "Unknown subcommand: '$SUBCOMMAND'\n`cmd_help`"
 else
-  shift
   cmd_$SUBCOMMAND "$@"
 fi
