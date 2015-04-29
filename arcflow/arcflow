@@ -5,6 +5,17 @@ BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 warn() { echo "$@" >&2; }
 die() { warn "ERROR: $@"; exit 1; }
 
+git_out()
+{
+  git "$@" 2>&1 >/dev/null
+}
+
+git_quiet()
+{
+  git "$@" >/dev/null 2>&1
+}
+
+
 type_from_branch()
 {
   IFS='/' read -a _DATA <<< "$BRANCH"
@@ -40,7 +51,7 @@ cmd_help()
 cmd_start()
 {
   # must start from develop
-  git checkout develop >/dev/null 2>&1
+  git_quiet checkout develop
 
   local _TASKID="$1"; shift
   local _TASKS=`arc tasks`
@@ -72,12 +83,12 @@ cmd_start()
   fi
 
   # start the hotfix/bug/release
-  local _ERR=`git flow "$_FLOWTYPE" start "$_TASKID" 2>&1 >/dev/null`
+  local _ERR=`git_out flow "$_FLOWTYPE" start "$_TASKID"`
   if [ "$_ERR" != "" ] ; then
     local _NOERR=`echo "$_ERR" | sed '/^Branch .* already exists. Pick another name.$/!d'`
     if [ "$_NOERR" != "" ] ; then
       #branch already exists, see if its in our local branch list
-      git checkout "$_FLOWTYPE/$_TASKID" >/dev/null 2>&1
+      git_quiet checkout "$_FLOWTYPE/$_TASKID"
     else
       local _NOERR=`echo "$_ERR" | sed '/^Switched to a new branch .*$/!d'`
       if [ "$_NOERR" = "" ] ; then
@@ -86,7 +97,7 @@ cmd_start()
     fi
   fi
 
-  git flow "$_FLOWTYPE" publish "$_TASKID"
+  git_quiet flow "$_FLOWTYPE" publish "$_TASKID"
   echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
 }
 
@@ -103,11 +114,23 @@ cmd_review()
 cmd_finish()
 {
   require_branch
-  local _DIFF=`arc amend --show | sed '/^Differential Revision:/!d; s/(D[0-9]+)$/\1/'`
-  echo "$_DIFF"
+  local _DIFF=`arc amend --show | sed -E '/^Differential Revision:/!d; s/^.*(D[0-9]+)$/\1/'`
   local _TYPE=`type_from_branch`
   local _TASK=`task_from_branch`
-  git flow "$_TYPE" finish "$_TASK"
+
+  local _FLAGS=''
+  if [ "$_TYPE" = "Hotfix" ]; then
+    _FLAGS='-n '
+  elif [ "$_TYPE" = "Bug" ]; then
+    _FLAGS=''
+  elif [ "$_TYPE" = "Feature" ]; then
+    _FLAGS=''
+  elif [ "$_TYPE" = "Release Candidate" ]; then
+    _FLAGS='-n'
+  fi
+
+  git flow "$_TYPE" finish "$_FLAGS$_TASK"
+  arc close-revision "$_DIFF"
   git push
 }
 
