@@ -145,11 +145,12 @@ delete_branch()
   git push origin :"$BRANCH"
 }
 
-SUBCOMMAND="$1"; shift
+SUBCOMMAND="$1"
 if [ "" = "$SUBCOMMAND" ]; then
   cmd_help
 elif ! type "cmd_$SUBCOMMAND" >/dev/null 2>&1; then
 	die "Unknown subcommand: '$SUBCOMMAND'\n`cmd_help`"
 else
+  shift
   cmd_$SUBCOMMAND "$@"
 fi
