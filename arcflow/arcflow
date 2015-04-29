@@ -86,20 +86,7 @@ cmd_start()
     fi
   fi
 
-  local _ERR=`git branch --set-upstream-to origin/"$_FLOWTYPE"/"$_TASKID" 2>&1 >/dev/null`
-  #if branch failed, git push, else git pull --rebase
-  if [ "$_ERR" != "" ] ; then
-    local _NOERR=`echo "$_ERR" | sed '/^error: the requested upstream branch .* does not exist$/!d'`
-    if [ "$_NOERR" != "" ] ; then
-      echo "Starting $_TYPE $_TASKID - $_TITLE"
-      git push --set-upstream origin "$_FLOWTYPE"/"$_TASKID" >/dev/null 2>&1
-    fi
-    die "$_ERR"
-  else
-    echo "Resuming $_TYPE $_TASKID - $_TITLE"
-    git pull --rebase >/dev/null 2>&1
-  fi
-
+  git flow "$_FLOWTYPE" publish "$_TASKID"
   echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
 }
 
@@ -107,8 +94,6 @@ cmd_start()
 cmd_review()
 {
   require_branch
-  git pull --rebase
-  git rebase develop
   echo "Submitting $BRANCH for review."
   git push
   arc diff develop
@@ -118,8 +103,8 @@ cmd_review()
 cmd_finish()
 {
   require_branch
-  git pull --rebase
-  git rebase develop
+  local _DIFF=`arc amend --show | sed '/^Differential Revision:/!d; s/(D[0-9]+)$/\1/'`
+  echo "$_DIFF"
   local _TYPE=`type_from_branch`
   local _TASK=`task_from_branch`
   git flow "$_TYPE" finish "$_TASK"
