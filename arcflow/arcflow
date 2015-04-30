@@ -122,13 +122,13 @@ cmd_finish()
 
   local _FLAGS=''
   if [ "$_TYPE" = "Hotfix" ]; then
-    _FLAGS='-n '
+    _FLAGS='-Fn '
   elif [ "$_TYPE" = "Bug" ]; then
-    _FLAGS=''
+    _FLAGS='-F '
   elif [ "$_TYPE" = "Feature" ]; then
-    _FLAGS=''
+    _FLAGS='-F '
   elif [ "$_TYPE" = "Release Candidate" ]; then
-    _FLAGS='-n '
+    _FLAGS='-Fn '
   fi
 
   git flow "$_TYPE" finish "$_FLAGS$_TASK"
