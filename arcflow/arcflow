@@ -121,18 +121,24 @@ cmd_finish()
   local _TASK=`task_from_branch`
 
   local _FLAGS=''
+  local _FLOWTYPE=''
   if [ "$_TYPE" = "Hotfix" ]; then
     _FLAGS='-Fn '
+    _FLOWTYPE='hotfix'
   elif [ "$_TYPE" = "Bug" ]; then
     _FLAGS='-F '
+    _FLOWTYPE='feature'
   elif [ "$_TYPE" = "Feature" ]; then
     _FLAGS='-F '
+    _FLOWTYPE='feature'
   elif [ "$_TYPE" = "Release Candidate" ]; then
     _FLAGS='-Fn '
+    _FLOWTYPE='release'
   fi
 
-  git flow "$_TYPE" finish "$_FLAGS$_TASK"
+  git flow "$_FLOWTYPE" finish "$_FLAGS$_TASK"
   arc close-revision "$_DIFF"
+  git push origin :"$_FLOWTYPE/$_TASK"
   git push --all
 }
 
