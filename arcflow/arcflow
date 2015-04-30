@@ -56,7 +56,7 @@ cmd_start()
   git_quiet checkout develop
 
   local _TASKID="$1"; shift
-  local _TASKS=`arc tasks`
+  local _TASKS=`arc tasks | grep -E "Hotfix|Bug|Feature|Release Candidate" | grep -v Parent`
   if [ "$_TASKID" = "" ] ; then
     die "No task specified\n$_TASKS";
   fi
