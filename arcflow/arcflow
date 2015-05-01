@@ -13,9 +13,13 @@ git_out()
 
 git_quiet()
 {
-  git "$@" >/dev/null 2>&1
+  quiet git "$@"
 }
 
+quiet()
+{
+  "$@" >/dev/null 2>&1
+}
 
 type_from_branch()
 {
@@ -108,6 +112,12 @@ cmd_review()
 {
   require_branch
   echo "Submitting $BRANCH for review."
+
+  phpunit
+  if [ 0 != "$?" ] ; then
+    die "Unit tests failed.  Please fix and try again."
+  fi
+
   local _TYPE=`type_from_branch`
 
   local _DIFFBRANCH='develop'
