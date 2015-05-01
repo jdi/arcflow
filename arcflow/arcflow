@@ -108,8 +108,15 @@ cmd_review()
 {
   require_branch
   echo "Submitting $BRANCH for review."
+  local _TYPE=`type_from_branch`
+
+  local _DIFFBRANCH='develop'
+  if [ "$_TYPE" = "hotfix" ] || [ "$_TYPE" = "release" ]; then
+    _DIFFBRANCH='master'
+  fi
+
   git push
-  arc diff develop
+  arc diff "$_DIFFBRANCH"
 }
 
 # arcflow finish
@@ -121,12 +128,10 @@ cmd_finish()
   local _TASK=`task_from_branch`
 
   local _FLAGS=''
-  if [ "$_TYPE" = "hotfix" ]; then
+  if [ "$_TYPE" = "hotfix" ] || [ "$_TYPE" = "release" ]; then
     _FLAGS='-Fn'
   elif [ "$_TYPE" = "feature" ]; then
     _FLAGS='-F'
-  elif [ "$_TYPE" = "release" ]; then
-    _FLAGS='-Fn'
   fi
 
   git flow "$_TYPE" finish "$_FLAGS" "$_TASK"
