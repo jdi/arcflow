@@ -164,6 +164,7 @@ cmd_update()
 {
   cd "$DIR"
   git pull
+  composer self-update
 }
 
 delete_branch()
