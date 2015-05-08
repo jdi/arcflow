@@ -8,12 +8,20 @@ die() { warn "ERROR: $@"; exit 1; }
 
 git_out()
 {
-  git "$@" 2>&1 >/dev/null
+  errout git "$@"
 }
 
 git_quiet()
 {
   quiet git "$@"
+}
+
+errout()
+{
+  local _ERRORS=`"$@" 2>&1 >/dev/null`
+  if [ 0 != "$?" ] ; then
+    echo "$_ERRORS"
+  fi
 }
 
 quiet()
@@ -36,7 +44,7 @@ task_from_branch()
 require_branch()
 {
   if [ "$BRANCH" = "" ] || [ "$BRANCH" = "master" ] || [ "$BRANCH" = "develop" ] ; then
-    die "Cannot submit $BRANCH for review, you are not on a feature branch."
+    die "Cannot perform this action on $BRANCH."
   fi
 }
 
