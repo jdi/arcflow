@@ -1,7 +1,6 @@
 #!/bin/sh
 
 BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 warn() { echo "$@" >&2; }
 die() { warn "ERROR: $@"; exit 1; }
@@ -54,7 +53,6 @@ cmd_help()
 	echo
 	echo "Available subcommands are:"
 	echo "   help      This page."
-	echo "   update    Update the arcflow repo."
 	echo "   start     Start work on a task."
 	echo "   review    Submit this branch for review."
 	echo "   finish    Merge the branch into develop."
@@ -166,13 +164,6 @@ cmd_abandon()
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     delete_branch
   fi
-}
-
-cmd_update()
-{
-  cd "$DIR"
-  git pull
-  composer self-update
 }
 
 delete_branch()
