@@ -151,10 +151,13 @@ cmd_finish()
   fi
 
   git push
+  git checkout develop; git pull
+  git checkout master; git pull
+  git checkout "$BRANCH"
   git flow "$_TYPE" finish "$_FLAGS" "$_TASK"
   arc close-revision "$_DIFF"
   git push --all
-  git push origin :"$_TYPE/$_TASK"
+  git push origin :"$BRANCH"
 }
 
 cmd_abandon()
