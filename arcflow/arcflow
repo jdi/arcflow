@@ -62,8 +62,11 @@ cmd_help()
 # arcflow start Txxx
 cmd_start()
 {
-  # must start from develop
+  # update master and develop
+  git_quiet checkout master
+  git_quiet pull
   git_quiet checkout develop
+  git_quiet pull
 
   local _TASKID="$1"; shift
   local _TASKS=`arc tasks | grep -E "Hotfix|Bug|Feature|Release Candidate" | grep -v Parent`
