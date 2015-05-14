@@ -122,6 +122,7 @@ cmd_review()
   require_branch
   echo "Submitting $BRANCH for review."
 
+  composer update
   phpunit
   if [ 0 != "$?" ] ; then
     die "Unit tests failed.  Please fix and try again."
