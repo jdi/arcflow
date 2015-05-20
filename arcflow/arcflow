@@ -123,7 +123,8 @@ cmd_review()
   echo "Submitting $BRANCH for review."
 
   composer update
-  ~/.composer/vendor/bin/phpunit -c phpunit.xml.dist
+  if [ -f phpunit.xml.dist ] ; then ~/.composer/vendor/bin/phpunit -c phpunit.xml.dist ; fi
+  if [ -f phpunit.xml ] ; then ~/.composer/vendor/bin/phpunit -c phpunit.xml ; fi
   if [ 0 != "$?" ] ; then
     die "Unit tests failed.  Please fix and try again."
   fi
