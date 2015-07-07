@@ -116,6 +116,31 @@ cmd_start()
   echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
 }
 
+
+cmd_rebase()
+{
+  require_branch
+
+  local _REBASE_BRANCH="@"
+  if [ "" = "$_REBASE_BRANCH" ] ; then
+    _REBASE_BRANCH="develop"
+  fi
+
+  # stash remaining changes
+  git stash
+  # pull latest develop
+  git checkout "$_REBASE_BRANCH"
+  git pull
+  git checkout -
+  # rebase develop
+  git rebase develop
+  # unstash
+  git stash pop
+  echo "  Rebase Complete"
+  echo "  Now might be a good time to push your branch to origin:"
+  echo "    git push -f"
+}
+
 # arcflow review
 cmd_review()
 {
