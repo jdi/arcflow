@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BRANCH=`git status | grep 'On branch' | awk '{print $NF}'`
 
