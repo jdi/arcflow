@@ -54,7 +54,7 @@ cmd_help()
 	echo "Available subcommands are:"
 	echo "   help              This page"
 	echo "   start             Start work on a task"
-	echo "   rebase <branch>   Update the current branch with changes from <branch>"
+	echo "   rebase <branch>   Rebase the current branch onto <branch>"
 	echo "   review            Submit this branch for review"
 	echo "   finish            Merge the branch into develop"
 	echo "   abandon           Abandon the this branch and delete it from the repo"
