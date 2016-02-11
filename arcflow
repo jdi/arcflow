@@ -76,8 +76,10 @@ cmd_start()
     die "No task specified\n$_TASKS";
   fi
 
-  local _TAS=`arc tasks --owner @all | sed -E '/^'"$_TASKID"' /!d; s/ {2,}/<TAB>/g; s/^'"$_TASKID"' (.*)<TAB>(.*)<TAB>[a-zA-Z]*$/\1~\2/'`
-  IFS='~' read _TITLE _TYPE <<< "$_TAS"
+  local _TAS=`arc tasks --owner @all | sed -E '/^'"$_TASKID"' /!d; s/ {2,}/|/g'`
+  IFS='|' read -r -a DETAILS <<< "$_TAS"
+  _TITLE="${DETAILS[1]}"
+  _TYPE="${DETAILS[2]}"
 
   if [ "$_TITLE" = "" ] ; then
     die "Task $_TASKID not found.\n$_TASKS";
@@ -115,7 +117,7 @@ cmd_start()
   fi
 
   git_quiet flow "$_FLOWTYPE" publish "$_TASKID"
-  echo "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
+  echo -e "Now, start committing to your $_TYPE. When done, use:\n\n      arcflow review\n"
 }
 
 
