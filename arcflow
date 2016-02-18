@@ -76,10 +76,10 @@ cmd_start()
     die "No task specified\n$_TASKS";
   fi
 
-  local _TAS=`arc tasks --owner @all | sed -E '/^'"$_TASKID"' /!d; s/ {2,}/|/g'`
+  local _TAS=`arc tasks --owner @all | sed -E '/^'"$_TASKID"'/!d ; s/^'"$_TASKID"' {1,}//g ; s/ {2,}/|/g'`
   IFS='|' read -r -a DETAILS <<< "$_TAS"
-  _TITLE="${DETAILS[1]}"
-  _TYPE="${DETAILS[2]}"
+  _TITLE="${DETAILS[0]}"
+  _TYPE="${DETAILS[1]}"
 
   if [ "$_TITLE" = "" ] ; then
     die "Task $_TASKID not found.\n$_TASKS";
